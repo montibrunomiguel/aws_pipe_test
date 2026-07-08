@@ -1,0 +1,30 @@
+name: AWS Connection Test
+
+on:
+  push:
+    branches: [ "main" ]
+
+# Permissões necessárias para requisitar o token OIDC
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  connect_aws:
+    name: Connect to AWS Account
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Código
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }} 
+          aws-region: us-east-1 # Substitua pela sua região padrão
+
+      - name: Test Connection (List S3 Buckets)
+        run: |
+          aws sts get-caller-identity
+          aws s3 ls
