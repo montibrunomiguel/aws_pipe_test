@@ -5,23 +5,27 @@ on:
     branches:
       - main
 
+# Obrigatório se for usar a Role OIDC (Recomendado para evitar o erro 254)
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   terraform:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout código
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4 # Atualizado para v4 (evita warnings de Node)
 
-      - name: Configurar credenciais AWS
+      - name: Configurar credenciais AWS (Via OIDC Seguro)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }} # Usa o ARN da Role que salvamos no Secret
           aws-region: us-east-1
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
+        uses: hashicorp/setup-terraform@v3 # Atualizado para v3
 
       - name: Terraform Init
         run: terraform init
@@ -35,9 +39,9 @@ jobs:
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: "config"
-          scan-ref: "./terraform"
+          scan-ref: "./terraform" # Garante que ele vai olhar a pasta certa
           severity: "CRITICAL,HIGH"
-          exit-code: "1"
+          exit-code: "1" # Vai quebrar a esteira se o S3 estiver vulnerável (mude para "0" se quiser apenas testar o Apply mesmo com erro)
 
       - name: Terraform Plan
         run: terraform plan
