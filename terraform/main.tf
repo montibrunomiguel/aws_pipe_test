@@ -26,17 +26,6 @@ resource "aws_s3_bucket_public_access_block" "secure_block" {
   restrict_public_buckets = true
 }
 
-# 4. Habilitando Criptografia no Lado do Servidor (SSE-S3)
-resource "aws_s3_bucket_server_side_encryption_configuration" "secure_encryption" {
-  bucket = aws_s3_bucket.secure_bucket.id
-
-  rule {
-    apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
-    }
-  }
-}
-
 # 5. Habilitando o Versionamento (Proteção contra deleção acidental e Ransomware)
 resource "aws_s3_bucket_versioning" "secure_versioning" {
   bucket = aws_s3_bucket.secure_bucket.id
