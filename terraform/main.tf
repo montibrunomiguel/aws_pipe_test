@@ -1,20 +1,46 @@
-# Bucket S3 intencionalmente mal configurado para testar o Trivy
-resource "aws_s3_bucket" "vulnerable_bucket" {
-  bucket = "meu-bucket-com-falhas-de-seguranca-2027"
+# 1. Definição do Bucket S3 Seguro
+resource "aws_s3_bucket" "secure_bucket" {
+  bucket = "meu-bucket-totalmente-seguro-2026"
+
+  # Evita destruição acidental em produção (opcional, mas boa prática)
+  lifecycle {
+    prevent_destroy = false
+  }
 }
 
-# Falha 1: Tornando o bucket público explicitamente
-resource "aws_s3_bucket_public_access_block" "bad_practice" {
-  bucket = aws_s3_bucket.vulnerable_bucket.id
-
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
+# 2. Desativando ACLs e forçando o controle via IAM Policies (Recomendação AWS)
+resource "aws_s3_bucket_ownership_controls" "secure_ownership" {
+  bucket = aws_s3_bucket.secure_bucket.id
+  rule {
+    object_ownership = "BucketOwnerEnforced"
+  }
 }
 
-# Falha 2: ACL pública (Antiga, mas o Trivy ainda pega)
-resource "aws_s3_bucket_acl" "bad_acl" {
-  bucket = aws_s3_bucket.vulnerable_bucket.id
-  acl    = "public-read"
+# 3. Bloqueio Absoluto de Acesso Público (O que o Trivy mais cobra)
+resource "aws_s3_bucket_public_access_block" "secure_block" {
+  bucket = aws_s3_bucket.secure_bucket.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+# 4. Habilitando Criptografia no Lado do Servidor (SSE-S3)
+resource "aws_s3_bucket_server_side_encryption_configuration" "secure_encryption" {
+  bucket = aws_s3_bucket.secure_bucket.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
+# 5. Habilitando o Versionamento (Proteção contra deleção acidental e Ransomware)
+resource "aws_s3_bucket_versioning" "secure_versioning" {
+  bucket = aws_s3_bucket.secure_bucket.id
+  versioning_configuration {
+    status = "Enabled"
+  }
 }
