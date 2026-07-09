@@ -1,6 +1,6 @@
 # Bucket S3 intencionalmente mal configurado para testar o Trivy
 resource "aws_s3_bucket" "vulnerable_bucket" {
-  bucket = "meu-bucket-com-falhas-de-seguranca-2026"
+  bucket = "meu-bucket-com-falhas-de-seguranca-2027"
 }
 
 # Falha 1: Tornando o bucket público explicitamente
