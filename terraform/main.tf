@@ -1,10 +1,10 @@
 # 1. Definição do Bucket S3 Seguro
 resource "aws_s3_bucket" "secure_bucket" {
-  bucket = "meu-bucket-totalmente-seguro-2026"
+  bucket = "meu-bucket-totalmente-seguro-2026_1"
 
   # Evita destruição acidental em produção (opcional, mas boa prática)
   lifecycle {
-    prevent_destroy = false
+    prevent_destroy = true
   }
 }
 
@@ -20,10 +20,10 @@ resource "aws_s3_bucket_ownership_controls" "secure_ownership" {
 resource "aws_s3_bucket_public_access_block" "secure_block" {
   bucket = aws_s3_bucket.secure_bucket.id
 
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }
 
 # 5. Habilitando o Versionamento (Proteção contra deleção acidental e Ransomware)
