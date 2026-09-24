@@ -1,10 +1,10 @@
 # 1. Definição do Bucket S3 Seguro
 resource "aws_s3_bucket" "secure_bucket" {
-  bucket = "meu-bucket-totalmente-seguro-2026_1"
+  bucket = "meu-bucket-totalmente-seguro-2026_9"
 
   # Evita destruição acidental em produção (opcional, mas boa prática)
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = true 
   }
 }
 
